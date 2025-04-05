@@ -74,19 +74,19 @@ const classOptions = [
 
 // Psychomotor domains
 const psychomotorDomains = [
-  "Handwriting",
-  "Verbal Fluency",
-  "Game/Sports",
+  "Athletics",
+  "Tennis",
+  "Board Games",
   "Handling Tools",
-  "Affective Domain",
+  "Soccer",
   "Punctuality",
   "Neatness",
   "Politeness",
   "Co-operation",
   "Attentiveness",
-  "Carrying Out Assignment",
+  "Relating with others",
   "Leadership Skill",
-  "Elocution",
+  "Politeness",
 ];
 
 // Rating options (1-5 scale)
