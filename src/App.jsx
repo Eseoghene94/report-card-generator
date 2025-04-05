@@ -201,13 +201,11 @@ const ReportCard = () => {
       if (y + requiredHeight > pageHeight - 20) {
         doc.addPage();
         y = 10;
-        doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.05); // Very faint
-        doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
+        doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30); // Logo on every page
       }
     };
 
-    // Background Image and Logo (on every page)
-    doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.05); // Reduced opacity to 0.05
+    // Logo (on every page initially)
     doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
 
     // Header
@@ -243,54 +241,64 @@ const ReportCard = () => {
     // Academic Performance Table
     const headers = [
       "Subjects",
-      "Exam 60",
-      "1st CA",
-      "2nd CA",
-      "Total",
+      "Exam (60)",
+      "1st CA (20)",
+      "2nd CA (20)",
+      "Total (100)",
       "Grade",
       "Point",
       "Remark",
-      "Psychomotor",
     ];
-    const columnWidths = [50, 20, 15, 15, 20, 15, 15, 20, 20];
-    addNewPageIfNeeded(8 + studentData.subjects.length * 8);
-    let x = 10;
+    const columnWidths = [60, 20, 20, 20, 20, 15, 15, 20];
+    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+    addNewPageIfNeeded(10 + studentData.subjects.length * 8);
+
+    // Draw table header
     doc.setFontSize(10);
     doc.setFillColor(200, 220, 255);
-    doc.rect(10, y, 190, 8, "F");
+    doc.rect(10, y, tableWidth, 8, "F");
+    doc.setDrawColor(0);
+    let x = 10;
     headers.forEach((header, i) => {
+      doc.rect(x, y, columnWidths[i], 8); // Border for each cell
       doc.text(header, x + 2, y + 6);
       x += columnWidths[i];
     });
     y += 8;
 
-    studentData.subjects.forEach((subject, index) => {
+    // Table rows
+    studentData.subjects.forEach((subject) => {
       addNewPageIfNeeded(8);
       const total = calculateTotal(subject);
       const grade = calculateGrade(total);
       const point = calculatePoint(grade).toFixed(2);
       const remark =
         total >= 75 ? "Excellent" : total >= 60 ? "Very Good" : total >= 50 ? "Good" : "Poor";
-      const psychomotor = studentData.psychomotor[index]?.domain || "";
 
       x = 10;
-      doc.text(subject.subject || "N/A", x + 2, y, { maxWidth: columnWidths[0] - 4 });
+      doc.rect(x, y, columnWidths[0], 8); // Subjects
+      doc.text(subject.subject || "N/A", x + 2, y + 6, { maxWidth: columnWidths[0] - 4 });
       x += columnWidths[0];
-      doc.text(`${subject.exam || 0}/60`, x + 2, y);
+      doc.rect(x, y, columnWidths[1], 8); // Exam
+      doc.text(`${subject.exam || 0}`, x + 2, y + 6);
       x += columnWidths[1];
-      doc.text(`${subject.ca1 || 0}/20`, x + 2, y);
+      doc.rect(x, y, columnWidths[2], 8); // CA1
+      doc.text(`${subject.ca1 || 0}`, x + 2, y + 6);
       x += columnWidths[2];
-      doc.text(`${subject.ca2 || 0}/20`, x + 2, y);
+      doc.rect(x, y, columnWidths[3], 8); // CA2
+      doc.text(`${subject.ca2 || 0}`, x + 2, y + 6);
       x += columnWidths[3];
-      doc.text(`${total}/100`, x + 2, y);
+      doc.rect(x, y, columnWidths[4], 8); // Total
+      doc.text(`${total}`, x + 2, y + 6);
       x += columnWidths[4];
-      doc.text(grade, x + 2, y);
+      doc.rect(x, y, columnWidths[5], 8); // Grade
+      doc.text(grade, x + 2, y + 6);
       x += columnWidths[5];
-      doc.text(point, x + 2, y);
+      doc.rect(x, y, columnWidths[6], 8); // Point
+      doc.text(point, x + 2, y + 6);
       x += columnWidths[6];
-      doc.text(remark, x + 2, y);
-      x += columnWidths[7];
-      doc.text(psychomotor, x + 2, y);
+      doc.rect(x, y, columnWidths[7], 8); // Remark
+      doc.text(remark, x + 2, y + 6);
       y += 8;
     });
 
@@ -321,7 +329,7 @@ const ReportCard = () => {
     doc.text(`GPA: ${gpa}`, 10, y + 12);
     y += 18;
 
-    // Psychomotor Ratings (Compact Table)
+    // Psychomotor Ratings Table (Below Summary)
     const selectedPsychomotor = studentData.psychomotor.filter((item) => item.rating > 0);
     if (selectedPsychomotor.length > 0) {
       addNewPageIfNeeded(24);
@@ -332,33 +340,48 @@ const ReportCard = () => {
 
       const psychoHeaders = ["Domain", "Rating"];
       const psychoWidths = [80, 20];
+      const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
+
+      // Draw psychomotor table header
       doc.setFontSize(10);
       doc.setFillColor(200, 220, 255);
-      doc.rect(10, y, 100, 8, "F");
+      doc.rect(10, y, psychoTableWidth, 8, "F");
+      x = 10;
       psychoHeaders.forEach((header, i) => {
-        doc.text(header, 10 + psychoWidths[i] * i + 2, y + 6);
+        doc.rect(x, y, psychoWidths[i], 8); // Border for each cell
+        doc.text(header, x + 2, y + 6);
+        x += psychoWidths[i];
       });
       y += 8;
 
+      // Split into two columns
       const midPoint = Math.ceil(selectedPsychomotor.length / 2);
       const leftColumn = selectedPsychomotor.slice(0, midPoint);
       const rightColumn = selectedPsychomotor.slice(midPoint);
-      const maxRows = Math.max(leftColumn.length, rightColumn.length);
 
-      for (let i = 0; i < maxRows; i++) {
+      // Draw rows (two columns side by side)
+      leftColumn.forEach((item, i) => {
         addNewPageIfNeeded(8);
         // Left column
-        if (leftColumn[i]) {
-          doc.text(leftColumn[i].domain, 12, y);
-          doc.text(`${leftColumn[i].rating}`, 92, y);
-        }
-        // Right column (offset by 100mm)
+        x = 10;
+        doc.rect(x, y, psychoWidths[0], 8);
+        doc.text(item.domain, x + 2, y + 6, { maxWidth: psychoWidths[0] - 4 });
+        x += psychoWidths[0];
+        doc.rect(x, y, psychoWidths[1], 8);
+        doc.text(`${item.rating}`, x + 2, y + 6);
+
+        // Right column (if exists)
         if (rightColumn[i]) {
-          doc.text(rightColumn[i].domain, 112, y);
-          doc.text(`${rightColumn[i].rating}`, 192, y);
+          x = 110; // Offset for second column
+          doc.rect(x, y, psychoWidths[0], 8);
+          doc.text(rightColumn[i].domain, x + 2, y + 6, { maxWidth: psychoWidths[0] - 4 });
+          x += psychoWidths[0];
+          doc.rect(x, y, psychoWidths[1], 8);
+          doc.text(`${rightColumn[i].rating}`, x + 2, y + 6);
         }
         y += 8;
-      }
+      });
+      y += 2; // Small gap after table
     }
 
     // Sporting Activities
