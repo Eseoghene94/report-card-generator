@@ -1,3 +1,4 @@
+
 // src/App.jsx
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
@@ -57,8 +58,6 @@ const nigerianSubjects = [
 const classOptions = [
   { name: "Creche", fees: 30000 },
   { name: "Nursery 1", fees: 35000 },
- 
-
   { name: "Nursery 2", fees: 35000 },
   { name: "Primary 1", fees: 40000 },
   { name: "Primary 2", fees: 40000 },
@@ -108,7 +107,7 @@ const ReportCard = () => {
     teacherRemark: "",
     principalRemark: "",
     sportingActivities: "",
-    schoolFees: 0, // Will be set based on class
+    schoolFees: 0,
   });
   const [errors, setErrors] = useState({});
 
@@ -195,20 +194,20 @@ const ReportCard = () => {
       unit: "mm",
       format: "a4",
     });
-    const pageHeight = 297; // A4 height in mm
+    const pageHeight = 297;
     let y = 10;
 
     const addNewPageIfNeeded = (requiredHeight) => {
       if (y + requiredHeight > pageHeight - 20) {
         doc.addPage();
         y = 10;
-        doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.1);
+        doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.05); // Very faint
         doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
       }
     };
 
     // Background Image and Logo (on every page)
-    doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.1);
+    doc.addImage("/logo.jpeg", "JPEG", 0, 0, 210, 297, undefined, "NONE", 0.05); // Reduced opacity to 0.05
     doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
 
     // Header
@@ -322,19 +321,45 @@ const ReportCard = () => {
     doc.text(`GPA: ${gpa}`, 10, y + 12);
     y += 18;
 
-    // Psychomotor Ratings
-    addNewPageIfNeeded(6 + studentData.psychomotor.length * 6);
-    doc.setFontSize(12);
-    doc.setTextColor(0, 51, 102);
-    doc.text("PSYCHOMOTOR ANALYSIS", 10, y);
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-    y += 6;
-    studentData.psychomotor.forEach((item) => {
-      addNewPageIfNeeded(6);
-      doc.text(`${item.domain}: ${item.rating || 0}`, 10, y);
+    // Psychomotor Ratings (Compact Table)
+    const selectedPsychomotor = studentData.psychomotor.filter((item) => item.rating > 0);
+    if (selectedPsychomotor.length > 0) {
+      addNewPageIfNeeded(24);
+      doc.setFontSize(12);
+      doc.setTextColor(0, 51, 102);
+      doc.text("PSYCHOMOTOR ANALYSIS", 10, y);
       y += 6;
-    });
+
+      const psychoHeaders = ["Domain", "Rating"];
+      const psychoWidths = [80, 20];
+      doc.setFontSize(10);
+      doc.setFillColor(200, 220, 255);
+      doc.rect(10, y, 100, 8, "F");
+      psychoHeaders.forEach((header, i) => {
+        doc.text(header, 10 + psychoWidths[i] * i + 2, y + 6);
+      });
+      y += 8;
+
+      const midPoint = Math.ceil(selectedPsychomotor.length / 2);
+      const leftColumn = selectedPsychomotor.slice(0, midPoint);
+      const rightColumn = selectedPsychomotor.slice(midPoint);
+      const maxRows = Math.max(leftColumn.length, rightColumn.length);
+
+      for (let i = 0; i < maxRows; i++) {
+        addNewPageIfNeeded(8);
+        // Left column
+        if (leftColumn[i]) {
+          doc.text(leftColumn[i].domain, 12, y);
+          doc.text(`${leftColumn[i].rating}`, 92, y);
+        }
+        // Right column (offset by 100mm)
+        if (rightColumn[i]) {
+          doc.text(rightColumn[i].domain, 112, y);
+          doc.text(`${rightColumn[i].rating}`, 192, y);
+        }
+        y += 8;
+      }
+    }
 
     // Sporting Activities
     addNewPageIfNeeded(26);
@@ -615,6 +640,7 @@ const ReportCard = () => {
                 value={item.rating}
                 onChange={(e) => handleInputChange(e, index, "psychomotor")}
               >
+                <MenuItem value={0}>Not Rated</MenuItem>
                 {ratingOptions.map((rate) => (
                   <MenuItem key={rate} value={rate}>
                     {rate}
