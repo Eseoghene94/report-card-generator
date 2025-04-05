@@ -526,7 +526,7 @@ const ReportCard = () => {
       align: "center",
     });
     doc.text("protegeacademyconsult@gmail.com", 105, 24, { align: "center" });
-    doc.text("TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)", 105, 32, {
+    doc.text("SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)", 105, 32, {
       align: "center",
     });
 
@@ -626,7 +626,7 @@ const ReportCard = () => {
   return (
     <Paper className="container">
       <Typography variant="h4" gutterBottom>
-        Report Card Generator
+        Protege Report Card Generator
       </Typography>
 
       <Grid container spacing={2}>
