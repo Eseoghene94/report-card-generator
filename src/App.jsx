@@ -2,50 +2,117 @@
 import React, { useState, useRef } from "react";
 import { jsPDF } from "jspdf";
 import { useReactToPrint } from "react-to-print";
-import { Button, TextField, Grid, Typography, Paper } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Grid,
+  Typography,
+  Paper,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  IconButton,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./App.css";
+
+// Predefined list of common Nigerian school subjects
+const nigerianSubjects = [
+  "English Language",
+  "Mathematics",
+  "Civic Education",
+  "Basic Science",
+  "Basic Technology",
+  "Social Studies",
+  "Christian Religious Studies",
+  "Islamic Religious Studies",
+  "Yoruba",
+  "Igbo",
+  "Hausa",
+  "Literature in English",
+  "Government",
+  "Economics",
+  "Biology",
+  "Chemistry",
+  "Physics",
+  "Agricultural Science",
+  "Further Mathematics",
+  "Geography",
+  "History",
+  "Computer Studies",
+  "Physical Education",
+  "Health Education",
+  "Fine Arts",
+  "Music",
+  "Home Economics",
+  "Food and Nutrition",
+  "Business Studies",
+  "Accounting",
+  "Commerce",
+  "French",
+];
+
+// Class options from Creche to SS3
+const classOptions = [
+  "Creche",
+  "Nursery 1",
+  "Nursery 2",
+  "Primary 1",
+  "Primary 2",
+  "Primary 3",
+  "Primary 4",
+  "Primary 5",
+  "Primary 6",
+  "JSS 1",
+  "JSS 2",
+  "JSS 3",
+  "SS 1",
+  "SS 2",
+  "SS 3",
+];
 
 const ReportCard = () => {
   const componentRef = useRef();
   const [studentData, setStudentData] = useState({
     name: "",
-    admissionNo: "PRQ/2023/052",
-    class: "SSS TWO",
-    section: "Senior Secondary",
-    gender: "male",
-    examName: "Second Term Examination",
-    scores: Array(13).fill({ subject: "", exam: 0, ca1: 0, ca2: 0 }),
+    admissionNo: "",
+    class: "",
+    section: "",
+    gender: "",
+    examName: "",
+    subjects: [{ subject: "", exam: 0, ca1: 0, ca2: 0 }],
   });
-
-  const subjects = [
-    "Government",
-    "Christian Religious Studies",
-    "English",
-    "Mathematics",
-    "Agricultural Science",
-    "Economics",
-    "Biology",
-    "Chemistry",
-    "Yoruba",
-    "Literature in English",
-    "Civic Education",
-    "Further Mathematics",
-    "Physics",
-  ];
 
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
     if (index !== null) {
-      const newScores = [...studentData.scores];
-      newScores[index] = { ...newScores[index], [name]: value };
-      setStudentData({ ...studentData, scores: newScores });
+      const newSubjects = [...studentData.subjects];
+      newSubjects[index] = { ...newSubjects[index], [name]: value };
+      setStudentData({ ...studentData, subjects: newSubjects });
     } else {
       setStudentData({ ...studentData, [name]: value });
     }
   };
 
-  const calculateTotal = (score) =>
-    parseInt(score.exam) + parseInt(score.ca1) + parseInt(score.ca2);
+  const addSubject = () => {
+    setStudentData({
+      ...studentData,
+      subjects: [
+        ...studentData.subjects,
+        { subject: "", exam: 0, ca1: 0, ca2: 0 },
+      ],
+    });
+  };
+
+  const removeSubject = (index) => {
+    const newSubjects = studentData.subjects.filter((_, i) => i !== index);
+    setStudentData({ ...studentData, subjects: newSubjects });
+  };
+
+  const calculateTotal = (subject) =>
+    parseInt(subject.exam) + parseInt(subject.ca1) + parseInt(subject.ca2);
 
   const calculateGrade = (total) => {
     if (total >= 75) return "A";
@@ -66,20 +133,18 @@ const ReportCard = () => {
   });
 
   const ReportCardTemplate = React.forwardRef((props, ref) => {
-    const grandTotal = studentData.scores.reduce(
-      (sum, score) => sum + calculateTotal(score),
+    const maxScore = studentData.subjects.length * 100;
+    const grandTotal = studentData.subjects.reduce(
+      (sum, subject) => sum + calculateTotal(subject),
       0
     );
-    const average = (
-      (grandTotal / (studentData.scores.length * 100)) *
-      100
-    ).toFixed(2);
+    const average = ((grandTotal / maxScore) * 100).toFixed(2);
     const gpa = (
-      studentData.scores.reduce(
-        (sum, score) =>
-          sum + calculatePoint(calculateGrade(calculateTotal(score))),
+      studentData.subjects.reduce(
+        (sum, subject) =>
+          sum + calculatePoint(calculateGrade(calculateTotal(subject))),
         0
-      ) / studentData.scores.length
+      ) / studentData.subjects.length
     ).toFixed(2);
 
     return (
@@ -123,15 +188,15 @@ const ReportCard = () => {
             </tr>
           </thead>
           <tbody>
-            {studentData.scores.map((score, index) => {
-              const total = calculateTotal(score);
+            {studentData.subjects.map((subject, index) => {
+              const total = calculateTotal(subject);
               const grade = calculateGrade(total);
               return (
                 <tr key={index}>
-                  <td>{subjects[index]}</td>
-                  <td>{score.exam}/60</td>
-                  <td>{score.ca1}/20</td>
-                  <td>{score.ca2}/20</td>
+                  <td>{subject.subject}</td>
+                  <td>{subject.exam}/60</td>
+                  <td>{subject.ca1}/20</td>
+                  <td>{subject.ca2}/20</td>
                   <td>{total}/100</td>
                   <td>{grade}</td>
                   <td>{calculatePoint(grade).toFixed(2)}</td>
@@ -151,7 +216,9 @@ const ReportCard = () => {
         </table>
 
         <div className="summary">
-          <Typography>GRAND TOTAL: {grandTotal}/1300</Typography>
+          <Typography>
+            GRAND TOTAL: {grandTotal}/{maxScore}
+          </Typography>
           <Typography>Average: {average}%</Typography>
           <Typography>GPA: {gpa}</Typography>
         </div>
@@ -171,7 +238,7 @@ const ReportCard = () => {
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={4}>
           <TextField
             fullWidth
             label="Student Name"
@@ -180,49 +247,131 @@ const ReportCard = () => {
             onChange={handleInputChange}
           />
         </Grid>
-        {/* Add other student info fields similarly */}
+        <Grid item xs={12} md={4}>
+          <TextField
+            fullWidth
+            label="Admission No"
+            name="admissionNo"
+            value={studentData.admissionNo}
+            onChange={handleInputChange}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <FormControl fullWidth>
+            <InputLabel>Class</InputLabel>
+            <Select
+              name="class"
+              value={studentData.class}
+              onChange={handleInputChange}
+            >
+              {classOptions.map((cls) => (
+                <MenuItem key={cls} value={cls}>
+                  {cls}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            fullWidth
+            label="Section"
+            name="section"
+            value={studentData.section}
+            onChange={handleInputChange}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            fullWidth
+            label="Gender"
+            name="gender"
+            value={studentData.gender}
+            onChange={handleInputChange}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <TextField
+            fullWidth
+            label="Exam Name"
+            name="examName"
+            value={studentData.examName}
+            onChange={handleInputChange}
+          />
+        </Grid>
       </Grid>
 
-      {subjects.map((subject, index) => (
+      <Typography variant="h6" style={{ marginTop: "2rem" }}>
+        Subjects and Scores
+      </Typography>
+
+      {studentData.subjects.map((subject, index) => (
         <Grid container spacing={2} key={index} style={{ marginTop: "1rem" }}>
           <Grid item xs={3}>
-            <Typography>{subject}</Typography>
+            <FormControl fullWidth>
+              <InputLabel>Subject</InputLabel>
+              <Select
+                name="subject"
+                value={subject.subject}
+                onChange={(e) => handleInputChange(e, index)}
+              >
+                {nigerianSubjects.map((subj) => (
+                  <MenuItem key={subj} value={subj}>
+                    {subj}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <TextField
               label="Exam (60)"
               name="exam"
               type="number"
-              value={studentData.scores[index].exam}
+              value={subject.exam}
               onChange={(e) => handleInputChange(e, index)}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <TextField
               label="1st CA (20)"
               name="ca1"
               type="number"
-              value={studentData.scores[index].ca1}
+              value={subject.ca1}
               onChange={(e) => handleInputChange(e, index)}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             <TextField
               label="2nd CA (20)"
               name="ca2"
               type="number"
-              value={studentData.scores[index].ca2}
+              value={subject.ca2}
               onChange={(e) => handleInputChange(e, index)}
             />
+          </Grid>
+          <Grid item xs={1}>
+            <IconButton onClick={() => removeSubject(index)} color="error">
+              <DeleteIcon />
+            </IconButton>
           </Grid>
         </Grid>
       ))}
 
       <Button
+        variant="outlined"
+        startIcon={<AddIcon />}
+        onClick={addSubject}
+        style={{ marginTop: "1rem" }}
+      >
+        Add Subject
+      </Button>
+
+      <Button
         variant="contained"
         color="primary"
         onClick={generatePDF}
-        style={{ marginTop: "2rem" }}
+        style={{ marginTop: "2rem", marginLeft: "1rem" }}
       >
         Generate PDF
       </Button>

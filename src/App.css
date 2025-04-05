@@ -48,3 +48,8 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+/* src/App.css */
+.subject-row {
+  align-items: center;
+  margin-bottom: 10px;
+}
