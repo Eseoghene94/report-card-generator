@@ -1,0 +1,50 @@
+/* src/App.css */
+.report-card {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 210mm;
+  min-height: 297mm;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.student-info {
+  margin-bottom: 20px;
+}
+
+.scores-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.scores-table th,
+.scores-table td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
+}
+
+.scores-table th {
+  background-color: #f0f0f0;
+}
+
+.summary,
+.general-note {
+  margin-top: 20px;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
