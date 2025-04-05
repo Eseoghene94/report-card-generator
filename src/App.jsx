@@ -311,19 +311,19 @@ const ReportCard = () => {
       // Header
       doc.setFontSize(16);
       doc.setTextColor(255, 0, 0);
-      doc.text("PROTEGE SCHOOLS", 110, y + 10, { align: "center" });
+      doc.text("PROTEGE SCHOOLS", pageWidth / 2, y + 10, { align: "center" });
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("2, Kola Rewire Street, Ejigbo, Lagos", 105, y + 18, {
+      doc.text("2, Kola Rewire Street, Ejigbo, Lagos", pageWidth / 2, y + 18, {
         align: "center",
       });
-      doc.text("protegeacademyconsult@gmail.com", 105, y + 24, {
+      doc.text("protegeacademyconsult@gmail.com", pageWidth / 2, y + 24, {
         align: "center",
       });
       doc.setFontSize(14);
       doc.text(
         "SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
-        105,
+        pageWidth / 2,
         y + 32,
         { align: "center" }
       );
@@ -332,40 +332,39 @@ const ReportCard = () => {
       // Student Info
       doc.setFontSize(10);
       doc.setTextColor(0);
-      doc.text(`Student Name: ${studentData.name}`, 10, y);
-      doc.text(`Class: ${studentData.class}`, 10, y + 6);
-      doc.text(`Admission No: ${studentData.admissionNo}`, 10, y + 12);
+      doc.text(`Student Name: ${studentData.name}`, 15, y);
+      doc.text(`Class: ${studentData.class}`, 15, y + 6);
+      doc.text(`Admission No: ${studentData.admissionNo}`, 15, y + 12);
       doc.text(`Exam Name: ${studentData.examName}`, 110, y);
       doc.text(`Section: ${studentData.section}`, 110, y + 6);
       doc.text(`Gender: ${studentData.gender}`, 110, y + 12);
       doc.text(
         `Attendance: ${studentData.attendance.present}/${studentData.attendance.total}`,
-        10,
+        15,
         y + 18
       );
       y += 24;
 
       // Academic Performance Table
       const headers = [
-        "Subjects",
-        "Exam 60",
+        "Subject",
+        "Exam",
         "1st CA",
         "2nd CA",
         "Total",
         "Grade",
-        "Point",
         "Remark",
       ];
-      const columnWidths = [60, 20, 20, 20, 20, 15, 15, 20];
+      const columnWidths = [65, 20, 20, 20, 20, 15, 25];
       const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
       addNewPageIfNeeded(10 + studentData.subjects.length * 8);
 
       // Draw table header
       doc.setFontSize(10);
       doc.setFillColor(200, 220, 255);
-      doc.rect(10, y, tableWidth, 8, "F");
+      doc.rect(15, y, tableWidth, 8, "F");
       doc.setDrawColor(0);
-      let x = 10;
+      let x = 15;
       headers.forEach((header, i) => {
         doc.rect(x, y, columnWidths[i], 8);
         doc.text(header, x + 2, y + 6);
@@ -378,7 +377,6 @@ const ReportCard = () => {
         addNewPageIfNeeded(8);
         const total = calculateTotal(subject);
         const grade = calculateGrade(total);
-        const point = calculatePoint(grade).toFixed(2);
         const remark =
           total >= 75
             ? "Excellent"
@@ -388,31 +386,28 @@ const ReportCard = () => {
             ? "Good"
             : "Poor";
 
-        x = 10;
+        x = 15;
         doc.rect(x, y, columnWidths[0], 8);
         doc.text(subject.subject || "N/A", x + 2, y + 6, {
           maxWidth: columnWidths[0] - 4,
         });
         x += columnWidths[0];
         doc.rect(x, y, columnWidths[1], 8);
-        doc.text(`${subject.exam || 0}/60`, x + 2, y + 6);
+        doc.text(`${subject.exam || 0}`, x + 2, y + 6);
         x += columnWidths[1];
         doc.rect(x, y, columnWidths[2], 8);
-        doc.text(`${subject.ca1 || 0}/20`, x + 2, y + 6);
+        doc.text(`${subject.ca1 || 0}`, x + 2, y + 6);
         x += columnWidths[2];
         doc.rect(x, y, columnWidths[3], 8);
-        doc.text(`${subject.ca2 || 0}/20`, x + 2, y + 6);
+        doc.text(`${subject.ca2 || 0}`, x + 2, y + 6);
         x += columnWidths[3];
         doc.rect(x, y, columnWidths[4], 8);
-        doc.text(`${total}/100`, x + 2, y + 6);
+        doc.text(`${total}`, x + 2, y + 6);
         x += columnWidths[4];
         doc.rect(x, y, columnWidths[5], 8);
         doc.text(grade, x + 2, y + 6);
         x += columnWidths[5];
         doc.rect(x, y, columnWidths[6], 8);
-        doc.text(point, x + 2, y + 6);
-        x += columnWidths[6];
-        doc.rect(x, y, columnWidths[7], 8);
         doc.text(remark, x + 2, y + 6);
         y += 8;
       });
@@ -425,39 +420,41 @@ const ReportCard = () => {
       );
       const average = ((grandTotal / maxScore) * 100).toFixed(2);
 
-      addNewPageIfNeeded(28);
+      addNewPageIfNeeded(20);
       y += 10;
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("SUMMARY", 10, y);
+      doc.text("SUMMARY", 15, y);
       doc.setFontSize(10);
       doc.setTextColor(0);
       y += 6;
       doc.text(
-        `GRAND TOTAL: ${grandTotal}/${maxScore}, Average: ${average}%`,
-        10,
+        `Total Score: ${grandTotal}/${maxScore} (Average: ${average}%)`,
+        15,
         y
       );
       y += 12;
 
-      // Ability/Activities Table (Left side, single column)
+      // Ability/Activities Table (left side)
       const selectedPsychomotor = studentData.psychomotor.filter(
         (item) => item.rating > 0
       );
       if (selectedPsychomotor.length > 0) {
+        const psychoStartY = y;
+
         doc.setFontSize(12);
         doc.setTextColor(0, 51, 102);
-        doc.text("Ability/Activities", 10, y);
+        doc.text("Ability/Activities", 15, y);
         y += 6;
 
-        const psychoHeaders = ["Domain", "Rating"];
-        const psychoWidths = [60, 20];
+        const psychoHeaders = ["Skill", "Rating"];
+        const psychoWidths = [50, 20];
         const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
 
         doc.setFontSize(10);
         doc.setFillColor(200, 220, 255);
-        doc.rect(10, y, psychoTableWidth, 8, "F");
-        x = 10;
+        doc.rect(15, y, psychoTableWidth, 8, "F");
+        x = 15;
         psychoHeaders.forEach((header, i) => {
           doc.rect(x, y, psychoWidths[i], 8);
           doc.text(header, x + 2, y + 6);
@@ -466,7 +463,7 @@ const ReportCard = () => {
         y += 8;
 
         selectedPsychomotor.slice(0, 8).forEach((item) => {
-          x = 10;
+          x = 15;
           doc.rect(x, y, psychoWidths[0], 8);
           doc.text(item.domain, x + 2, y + 6, {
             maxWidth: psychoWidths[0] - 4,
@@ -476,80 +473,82 @@ const ReportCard = () => {
           doc.text(`${item.rating}`, x + 2, y + 6);
           y += 8;
         });
+
+        // Right side content (Remarks and General Note)
+        const rightX = 100;
+        let rightY = psychoStartY;
+
+        // Teacher's Remark
+        doc.setFontSize(12);
+        doc.setTextColor(0, 51, 102);
+        doc.text("Teacher's Remark:", rightX, rightY);
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+        rightY += 6;
+
+        const teacherRemarkLines = doc.splitTextToSize(
+          studentData.teacherRemark || "N/A",
+          90
+        );
+        teacherRemarkLines.slice(0, 4).forEach((line) => {
+          doc.text(line, rightX, rightY);
+          rightY += 6;
+        });
+
+        // Principal's Remark
+        rightY += 6;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 51, 102);
+        doc.text("Principal's Remark:", rightX, rightY);
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+        rightY += 6;
+
+        const principalRemarkLines = doc.splitTextToSize(
+          studentData.principalRemark || "N/A",
+          90
+        );
+        principalRemarkLines.slice(0, 4).forEach((line) => {
+          doc.text(line, rightX, rightY);
+          rightY += 6;
+        });
+
+        // General Note (right below Remarks)
+        rightY += 6;
+        doc.setFontSize(12);
+        doc.setTextColor(0, 51, 102);
+        doc.text("General Note:", rightX, rightY);
+        doc.setFontSize(10);
+        doc.setTextColor(0);
+        rightY += 6;
+
+        const generalNoteLines = [
+          `Next term begins: 28th April, 2025`,
+          `School fees: N${studentData.schoolFees.toLocaleString()}`,
+          `Graduation fees: ${
+            studentData.class === "JSS 3"
+              ? "N25,000"
+              : studentData.class === "SS 3"
+              ? "N30,000"
+              : "N15,000"
+          }`,
+        ];
+
+        generalNoteLines.forEach((line) => {
+          doc.text(line, rightX, rightY);
+          rightY += 6;
+        });
+
+        // Move y down to whichever is lower (psychomotor or right content)
+        y = Math.max(y, rightY);
       }
 
-      // Right side content (Remarks only)
-      let rightY =
-        y -
-        (selectedPsychomotor.length > 0
-          ? 8 * Math.min(selectedPsychomotor.length, 8) + 14
-          : 0);
-      const rightX = 100;
-
-      rightY += 5;
-      doc.setFontSize(12);
-      doc.setTextColor(0, 51, 102);
-      doc.text("Class Teacher's Remark:", rightX, rightY);
-      doc.setFontSize(10);
-      doc.setTextColor(0);
-      rightY += 6;
-      const teacherRemarkLines = doc.splitTextToSize(
-        studentData.teacherRemark || "N/A",
-        100
-      );
-      teacherRemarkLines.slice(0, 3).forEach((line) => {
-        doc.text(line, rightX, rightY);
-        rightY += 6;
-      });
-
-      rightY += 5;
-      doc.setFontSize(12);
-      doc.setTextColor(0, 51, 102);
-      doc.text("Head of School's Remark:", rightX, rightY);
-      doc.setFontSize(10);
-      doc.setTextColor(0);
-      rightY += 6;
-      const principalRemarkLines = doc.splitTextToSize(
-        studentData.principalRemark || "N/A",
-        100
-      );
-      principalRemarkLines.slice(0, 3).forEach((line) => {
-        doc.text(line, rightX, rightY);
-        rightY += 6;
-      });
-
-      // General Note (Moved to bottom)
-      addNewPageIfNeeded(40);
-      y = Math.max(y, rightY) + 10;
-      doc.setFontSize(12);
-      doc.setTextColor(0, 51, 102);
-      doc.text("GENERAL NOTE:", 10, y);
-      doc.setFontSize(10);
-      doc.setTextColor(0);
-      doc.text("Next TERM begins on 28th of April, 2025", 10, y + 6);
-      doc.text(
-        `School fees for next term: N${studentData.schoolFees.toLocaleString()}`,
-        10,
-        y + 12
-      );
-      const isGraduand =
-        studentData.class === "JSS 3" || studentData.class === "SS 3";
-      doc.text(`End of Session Event/Graduation fees:`, 10, y + 18);
-      doc.text(
-        `Graduand (JSS3: N25,000, SSS3: N30,000) Non Graduand: N15,000`,
-        10,
-        y + 24,
-        { maxWidth: 90 }
-      );
-      y += 30;
-
-      // Add stamp at bottom-right
-      if (stampImage) {
-        addNewPageIfNeeded(40);
-        const stampWidth = 40;
-        const stampHeight = 40;
-        const stampX = 210 - stampWidth - 10;
-        const stampY = y + 10;
+      // Add stamp at bottom-right if space allows
+      if (stampImage && y < pageHeight - 50) {
+        const stampWidth = 30;
+        const stampHeight = 30;
+        const stampX = pageWidth - stampWidth - 15;
+        const stampY = pageHeight - stampHeight - 15;
         doc.addImage(
           stampImage,
           "PNG",
@@ -568,320 +567,6 @@ const ReportCard = () => {
       );
     }
   };
-  // const generatePDF = () => {
-  //   try {
-  //     const doc = new jsPDF({
-  //       orientation: "portrait",
-  //       unit: "mm",
-  //       format: "a4",
-  //     });
-  //     const pageWidth = 210;
-  //     const pageHeight = 297;
-  //     let y = 10;
-  //     let isFirstPage = true; // Declare and initialize isFirstPage
-  //     // let isFirstPage = true;
-
-  //     const addNewPageIfNeeded = (requiredHeight) => {
-  //       if (y + requiredHeight > pageHeight - 20) {
-  //         doc.addPage();
-  //         y = 10;
-  //         isFirstPage = false;
-  //       }
-  //     };
-
-  //     // Logo (only on first page)
-  //     if (isFirstPage) {
-  //       doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
-  //     }
-
-  //     // Header
-  //     doc.setFontSize(16);
-  //     doc.setTextColor(255, 0, 0); // Red for school name
-  //     doc.text("PROTEGE SCHOOLS", 110, y + 10, { align: "center" });
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102); // Dark blue for other text
-  //     doc.text("2, Kola Rewire Street, Ejigbo, Lagos", 105, y + 18, {
-  //       align: "center",
-  //     });
-  //     doc.text("protegeacademyconsult@gmail.com", 105, y + 24, {
-  //       align: "center",
-  //     });
-  //     doc.setFontSize(14);
-  //     doc.text(
-  //       "SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
-  //       105,
-  //       y + 32,
-  //       {
-  //         align: "center",
-  //       }
-  //     );
-  //     y += 40;
-
-  //     // Student Info
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     doc.text(`Student Name: ${studentData.name}`, 10, y);
-  //     doc.text(`Class: ${studentData.class}`, 10, y + 6);
-  //     doc.text(`Admission No: ${studentData.admissionNo}`, 10, y + 12);
-  //     doc.text(`Exam Name: ${studentData.examName}`, 110, y);
-  //     doc.text(`Section: ${studentData.section}`, 110, y + 6);
-  //     doc.text(`Gender: ${studentData.gender}`, 110, y + 12);
-  //     doc.text(
-  //       `Attendance: ${studentData.attendance.present}/${studentData.attendance.total}`,
-  //       10,
-  //       y + 18
-  //     );
-
-  //     // General Note (Top-right)
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102);
-  //     doc.text("GENERAL NOTE:", 110, y + 18);
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     doc.text("Next TERM begins on 28th of April, 2025", 110, y + 24);
-  //     doc.text(
-  //       `School fees for next term: N${studentData.schoolFees.toLocaleString()}`,
-  //       110,
-  //       y + 30
-  //     );
-  //     const isGraduand =
-  //       studentData.class === "JSS 3" || studentData.class === "SS 3";
-  //     doc.text(`End of Session Event/Graduation fees:`, 110, y + 36);
-  //     doc.text(
-  //       `Graduand (JSS3: N25,000, SSS3: N30,000) Non Graduand: N15,000`,
-  //       110,
-  //       y + 42,
-  //       { maxWidth: 90 }
-  //     );
-  //     y += 48;
-
-  //     // Academic Performance Table
-  //     const headers = [
-  //       "Subjects",
-  //       "Exam 60",
-  //       "1st CA",
-  //       "2nd CA",
-  //       "Total",
-  //       "Grade",
-  //       "Point",
-  //       "Remark",
-  //     ];
-  //     const columnWidths = [60, 20, 20, 20, 20, 15, 15, 20];
-  //     const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
-  //     addNewPageIfNeeded(10 + studentData.subjects.length * 8);
-
-  //     // Draw table header
-  //     doc.setFontSize(10);
-  //     doc.setFillColor(200, 220, 255);
-  //     doc.rect(10, y, tableWidth, 8, "F");
-  //     doc.setDrawColor(0);
-  //     let x = 10;
-  //     headers.forEach((header, i) => {
-  //       doc.rect(x, y, columnWidths[i], 8);
-  //       doc.text(header, x + 2, y + 6);
-  //       x += columnWidths[i];
-  //     });
-  //     y += 8;
-
-  //     // Table rows
-  //     studentData.subjects.forEach((subject) => {
-  //       addNewPageIfNeeded(8);
-  //       const total = calculateTotal(subject);
-  //       const grade = calculateGrade(total);
-  //       const point = calculatePoint(grade).toFixed(2);
-  //       const remark =
-  //         total >= 75
-  //           ? "Excellent"
-  //           : total >= 60
-  //           ? "Very Good"
-  //           : total >= 50
-  //           ? "Good"
-  //           : "Poor";
-
-  //       x = 10;
-  //       doc.rect(x, y, columnWidths[0], 8);
-  //       doc.text(subject.subject || "N/A", x + 2, y + 6, {
-  //         maxWidth: columnWidths[0] - 4,
-  //       });
-  //       x += columnWidths[0];
-  //       doc.rect(x, y, columnWidths[1], 8);
-  //       doc.text(`${subject.exam || 0}/60`, x + 2, y + 6);
-  //       x += columnWidths[1];
-  //       doc.rect(x, y, columnWidths[2], 8);
-  //       doc.text(`${subject.ca1 || 0}/20`, x + 2, y + 6);
-  //       x += columnWidths[2];
-  //       doc.rect(x, y, columnWidths[3], 8);
-  //       doc.text(`${subject.ca2 || 0}/20`, x + 2, y + 6);
-  //       x += columnWidths[3];
-  //       doc.rect(x, y, columnWidths[4], 8);
-  //       doc.text(`${total}/100`, x + 2, y + 6);
-  //       x += columnWidths[4];
-  //       doc.rect(x, y, columnWidths[5], 8);
-  //       doc.text(grade, x + 2, y + 6);
-  //       x += columnWidths[5];
-  //       doc.rect(x, y, columnWidths[6], 8);
-  //       doc.text(point, x + 2, y + 6);
-  //       x += columnWidths[6];
-  //       doc.rect(x, y, columnWidths[7], 8);
-  //       doc.text(remark, x + 2, y + 6);
-  //       y += 8;
-  //     });
-
-  //     // Summary
-  //     const maxScore = studentData.subjects.length * 100;
-  //     const grandTotal = studentData.subjects.reduce(
-  //       (sum, subject) => sum + calculateTotal(subject),
-  //       0
-  //     );
-  //     const average = ((grandTotal / maxScore) * 100).toFixed(2);
-  //     const gpa = (
-  //       studentData.subjects.reduce(
-  //         (sum, subject) =>
-  //           sum + calculatePoint(calculateGrade(calculateTotal(subject))),
-  //         0
-  //       ) / studentData.subjects.length
-  //     ).toFixed(2);
-
-  //     addNewPageIfNeeded(28);
-  //     y += 10;
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102);
-  //     doc.text("SUMMARY", 10, y);
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     y += 6;
-  //     doc.text(
-  //       `GRAND TOTAL: ${grandTotal}/${maxScore}, Average: ${average}%`,
-  //       10,
-  //       y
-  //     );
-  //     doc.text(`GRAND TOTAL IN WORDS: ${numberToWords(grandTotal)}`, 10, y + 6);
-  //     doc.text(`GPA: ${gpa}`, 10, y + 12);
-  //     y += 18;
-
-  //     // Psychomotor Table (Left side, single column)
-  //     const selectedPsychomotor = studentData.psychomotor.filter(
-  //       (item) => item.rating > 0
-  //     );
-  //     if (selectedPsychomotor.length > 0) {
-  //       doc.setFontSize(12);
-  //       doc.setTextColor(0, 51, 102);
-  //       doc.text("PSYCHOMOTOR ANALYSIS", 10, y);
-  //       y += 6;
-
-  //       const psychoHeaders = ["Domain", "Rating"];
-  //       const psychoWidths = [60, 20];
-  //       const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
-
-  //       doc.setFontSize(10);
-  //       doc.setFillColor(200, 220, 255);
-  //       doc.rect(10, y, psychoTableWidth, 8, "F");
-  //       x = 10;
-  //       psychoHeaders.forEach((header, i) => {
-  //         doc.rect(x, y, psychoWidths[i], 8);
-  //         doc.text(header, x + 2, y + 6);
-  //         x += psychoWidths[i];
-  //       });
-  //       y += 8;
-
-  //       selectedPsychomotor.slice(0, 8).forEach((item) => {
-  //         // Limit to 8 rows
-  //         x = 10;
-  //         doc.rect(x, y, psychoWidths[0], 8);
-  //         doc.text(item.domain, x + 2, y + 6, {
-  //           maxWidth: psychoWidths[0] - 4,
-  //         });
-  //         x += psychoWidths[0];
-  //         doc.rect(x, y, psychoWidths[1], 8);
-  //         doc.text(`${item.rating}`, x + 2, y + 6);
-  //         y += 8;
-  //       });
-  //     }
-
-  //     // Right side content (Sporting Activities and Remarks)
-  //     let rightY =
-  //       y -
-  //       (selectedPsychomotor.length > 0
-  //         ? 8 * Math.min(selectedPsychomotor.length, 8) + 14
-  //         : 0); // Align with psychomotor start
-  //     const rightX = 100; // Start right column at x=100
-
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102);
-  //     doc.text("SPORTING ABILITIES/ACTIVITIES", rightX, rightY);
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     rightY += 6;
-  //     const sportingLines = doc.splitTextToSize(
-  //       studentData.sportingActivities || "N/A",
-  //       100
-  //     );
-  //     sportingLines.slice(0, 3).forEach((line) => {
-  //       // Limit to 3 lines
-  //       doc.text(line, rightX, rightY);
-  //       rightY += 6;
-  //     });
-
-  //     rightY += 5;
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102);
-  //     doc.text("Class Teacher's Remark:", rightX, rightY);
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     rightY += 6;
-  //     const teacherRemarkLines = doc.splitTextToSize(
-  //       studentData.teacherRemark || "N/A",
-  //       100
-  //     );
-  //     teacherRemarkLines.slice(0, 3).forEach((line) => {
-  //       // Limit to 3 lines
-  //       doc.text(line, rightX, rightY);
-  //       rightY += 6;
-  //     });
-
-  //     rightY += 5;
-  //     doc.setFontSize(12);
-  //     doc.setTextColor(0, 51, 102);
-  //     doc.text("Head of School's Remark:", rightX, rightY);
-  //     doc.setFontSize(10);
-  //     doc.setTextColor(0);
-  //     rightY += 6;
-  //     const principalRemarkLines = doc.splitTextToSize(
-  //       studentData.principalRemark || "N/A",
-  //       100
-  //     );
-  //     principalRemarkLines.slice(0, 3).forEach((line) => {
-  //       // Limit to 3 lines
-  //       doc.text(line, rightX, rightY);
-  //       rightY += 6;
-  //     });
-
-  //     // Add stamp at bottom-right of last page
-  //     if (stampImage) {
-  //       addNewPageIfNeeded(40); // Ensure space for stamp (40mm height assumed)
-  //       const stampWidth = 40; // Width in mm
-  //       const stampHeight = 40; // Height in mm
-  //       const stampX = 210 - stampWidth - 10; // Right edge (A4 width = 210mm) - width - 10mm margin
-  //       const stampY = y + 10; // 10mm below last content
-  //       doc.addImage(
-  //         stampImage,
-  //         "PNG",
-  //         stampX,
-  //         stampY,
-  //         stampWidth,
-  //         stampHeight
-  //       );
-  //     }
-
-  //     // Download the PDF
-  //     doc.save(`${studentData.name}_report_card.pdf`);
-  //   } catch (error) {
-  //     console.error("Error generating PDF:", error);
-  //     alert(
-  //       "An error occurred while generating the PDF. Check the console for details."
-  //     );
-  //   }
-  // };
 
   const validateForm = () => {
     const requiredFields = ["name", "admissionNo", "class", "examName"];
