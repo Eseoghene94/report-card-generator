@@ -291,9 +291,11 @@ const ReportCard = () => {
         unit: "mm",
         format: "a4",
       });
+      const pageWidth = 210;
       const pageHeight = 297;
       let y = 10;
-      let isFirstPage = true;
+      let isFirstPage = true; // Declare and initialize isFirstPage
+      // let isFirstPage = true;
 
       const addNewPageIfNeeded = (requiredHeight) => {
         if (y + requiredHeight > pageHeight - 20) {
@@ -311,23 +313,18 @@ const ReportCard = () => {
       // Header
       doc.setFontSize(16);
       doc.setTextColor(255, 0, 0); // Red for school name
-      doc.text("PROTEGE SCHOOLS", 105, y + 10, { align: "center" });
+      doc.text("PROTEGE SCHOOLS", 110, y + 10, { align: "center" });
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102); // Dark blue for other text
-      doc.text(
-        "School Address: 2, Kola Rewire Street, Ejigbo, Lagos",
-        105,
-        y + 18,
-        {
-          align: "center",
-        }
-      );
+      doc.text("2, Kola Rewire Street, Ejigbo, Lagos", 105, y + 18, {
+        align: "center",
+      });
       doc.text("protegeacademyconsult@gmail.com", 105, y + 24, {
         align: "center",
       });
       doc.setFontSize(14);
       doc.text(
-        "TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
+        "SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
         105,
         y + 32,
         {
@@ -478,22 +475,20 @@ const ReportCard = () => {
       doc.text(`GPA: ${gpa}`, 10, y + 12);
       y += 18;
 
-      // Psychomotor Ratings Table
+      // Psychomotor Table (Left side, single column)
       const selectedPsychomotor = studentData.psychomotor.filter(
         (item) => item.rating > 0
       );
       if (selectedPsychomotor.length > 0) {
-        addNewPageIfNeeded(24);
         doc.setFontSize(12);
         doc.setTextColor(0, 51, 102);
         doc.text("PSYCHOMOTOR ANALYSIS", 10, y);
         y += 6;
 
         const psychoHeaders = ["Domain", "Rating"];
-        const psychoWidths = [80, 20];
+        const psychoWidths = [60, 20];
         const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
 
-        // Draw psychomotor table header
         doc.setFontSize(10);
         doc.setFillColor(200, 220, 255);
         doc.rect(10, y, psychoTableWidth, 8, "F");
@@ -505,14 +500,8 @@ const ReportCard = () => {
         });
         y += 8;
 
-        // Split into two columns
-        const midPoint = Math.ceil(selectedPsychomotor.length / 2);
-        const leftColumn = selectedPsychomotor.slice(0, midPoint);
-        const rightColumn = selectedPsychomotor.slice(midPoint);
-
-        leftColumn.forEach((item, i) => {
-          addNewPageIfNeeded(8);
-          // Left column
+        selectedPsychomotor.slice(0, 8).forEach((item) => {
+          // Limit to 8 rows
           x = 10;
           doc.rect(x, y, psychoWidths[0], 8);
           doc.text(item.domain, x + 2, y + 6, {
@@ -521,76 +510,66 @@ const ReportCard = () => {
           x += psychoWidths[0];
           doc.rect(x, y, psychoWidths[1], 8);
           doc.text(`${item.rating}`, x + 2, y + 6);
-
-          // Right column (if exists)
-          if (rightColumn[i]) {
-            x = 110;
-            doc.rect(x, y, psychoWidths[0], 8);
-            doc.text(rightColumn[i].domain, x + 2, y + 6, {
-              maxWidth: psychoWidths[0] - 4,
-            });
-            x += psychoWidths[0];
-            doc.rect(x, y, psychoWidths[1], 8);
-            doc.text(`${rightColumn[i].rating}`, x + 2, y + 6);
-          }
           y += 8;
         });
-        y += 2;
       }
 
-      // Sporting Activities
-      addNewPageIfNeeded(26);
-      y += 10;
+      // Right side content (Sporting Activities and Remarks)
+      let rightY =
+        y -
+        (selectedPsychomotor.length > 0
+          ? 8 * Math.min(selectedPsychomotor.length, 8) + 14
+          : 0); // Align with psychomotor start
+      const rightX = 100; // Start right column at x=100
+
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("SPORTING ABILITIES/ACTIVITIES", 10, y);
+      doc.text("SPORTING ABILITIES/ACTIVITIES", rightX, rightY);
       doc.setFontSize(10);
       doc.setTextColor(0);
-      y += 6;
+      rightY += 6;
       const sportingLines = doc.splitTextToSize(
         studentData.sportingActivities || "N/A",
-        190
+        100
       );
-      sportingLines.forEach((line) => {
-        addNewPageIfNeeded(6);
-        doc.text(line, 10, y);
-        y += 6;
+      sportingLines.slice(0, 3).forEach((line) => {
+        // Limit to 3 lines
+        doc.text(line, rightX, rightY);
+        rightY += 6;
       });
 
-      // Remarks
-      addNewPageIfNeeded(46);
-      y += 10;
+      rightY += 5;
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("Class Teacher's Remark:", 10, y);
+      doc.text("Class Teacher's Remark:", rightX, rightY);
       doc.setFontSize(10);
       doc.setTextColor(0);
-      y += 6;
+      rightY += 6;
       const teacherRemarkLines = doc.splitTextToSize(
         studentData.teacherRemark || "N/A",
-        190
+        100
       );
-      teacherRemarkLines.forEach((line) => {
-        addNewPageIfNeeded(6);
-        doc.text(line, 10, y);
-        y += 6;
+      teacherRemarkLines.slice(0, 3).forEach((line) => {
+        // Limit to 3 lines
+        doc.text(line, rightX, rightY);
+        rightY += 6;
       });
 
-      y += 10;
+      rightY += 5;
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("Head of School's Remark:", 10, y);
+      doc.text("Head of School's Remark:", rightX, rightY);
       doc.setFontSize(10);
       doc.setTextColor(0);
-      y += 6;
+      rightY += 6;
       const principalRemarkLines = doc.splitTextToSize(
         studentData.principalRemark || "N/A",
-        190
+        100
       );
-      principalRemarkLines.forEach((line) => {
-        addNewPageIfNeeded(6);
-        doc.text(line, 10, y);
-        y += 6;
+      principalRemarkLines.slice(0, 3).forEach((line) => {
+        // Limit to 3 lines
+        doc.text(line, rightX, rightY);
+        rightY += 6;
       });
 
       // Add stamp at bottom-right of last page
