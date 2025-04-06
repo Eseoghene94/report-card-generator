@@ -55,22 +55,47 @@ const nigerianSubjects = [
 
 // Class options from Creche to SS3 with school fees
 const classOptions = [
-  { name: "Creche", fees: 30000 },
-  { name: "Nursery 1", fees: 35000 },
-  { name: "Nursery 2", fees: 35000 },
-  { name: "Primary 1", fees: 40000 },
-  { name: "Primary 2", fees: 40000 },
-  { name: "Primary 3", fees: 40000 },
-  { name: "Primary 4", fees: 45000 },
-  { name: "Primary 5", fees: 45000 },
-  { name: "Primary 6", fees: 45000 },
-  { name: "JSS 1", fees: 50000 },
-  { name: "JSS 2", fees: 50000 },
-  { name: "JSS 3", fees: 50000 },
-  { name: "SS 1", fees: 55000 },
-  { name: "SS 2", fees: 55000 },
-  { name: "SS 3", fees: 55000 },
+  { name: "JSS 1", fees: 50000, note: "N50,000" },
+  { name: "JSS 2", fees: 50000, note: "N50,000" },
+  {
+    name: "JSS 3",
+    fees: 55000,
+    note: "N50,000 + Junior WAEC extension N5,000 (Total: N55,000)",
+  },
+  {
+    name: "SS 1 Science",
+    fees: 55000,
+    note: "N50,000 + Practicals N5,000 (Total: N55,000)",
+  },
+  { name: "SS 1 Art/Commercial", fees: 50000, note: "N50,000" },
+  {
+    name: "SS 2 Science",
+    fees: 55000,
+    note: "N50,000 + Practicals N5,000 (Total: N55,000)",
+  },
+  { name: "SS 2 Art/Commercial", fees: 50000, note: "N50,000" },
+  {
+    name: "SS 3",
+    fees: 30000,
+    note: "Extension class (WAEC/JAMB prep + practicals) - N30,000",
+  },
 ];
+//   { name: "Creche", fees: 30000 },
+//   { name: "Nursery 1", fees: 35000 },
+//   { name: "Nursery 2", fees: 35000 },
+//   { name: "Primary 1", fees: 40000 },
+//   { name: "Primary 2", fees: 40000 },
+//   { name: "Primary 3", fees: 40000 },
+//   { name: "Primary 4", fees: 45000 },
+//   { name: "Primary 5", fees: 45000 },
+//   { name: "Primary 6", fees: 45000 },
+//   { name: "JSS 1", fees: 50000 },
+//   { name: "JSS 2", fees: 50000 },
+//   { name: "JSS 3", fees: 50000 },
+//   { name: "SS 1", fees: 55000 },
+//   { name: "SS 2", fees: 55000 },
+//   { name: "SS 3", fees: 30000 },
+// ];
 
 // Psychomotor domains
 const psychomotorDomains = [
@@ -522,23 +547,76 @@ const ReportCard = () => {
         doc.setTextColor(0);
         rightY += 6;
 
+        // Get the current class's fee note
+        const currentClass = classOptions.find(
+          (cls) => cls.name === studentData.class
+        );
+        const classFeeNote = currentClass ? currentClass.note : "N/A";
+
+        // General fee information
         const generalNoteLines = [
           `Next term begins: 28th April, 2025`,
-          `School fees: N${studentData.schoolFees.toLocaleString()}`,
-          `Graduation fees: ${
-            studentData.class === "JSS 3"
-              ? "N25,000"
-              : studentData.class === "SS 3"
-              ? "N30,000"
-              : "N15,000"
-          }`,
+          `(${studentData.class || "N/A"}): ${classFeeNote}`,
+          "",
         ];
+        // const generalNoteLines = [
+        //   `Next term begins: 28th April, 2025`,
+        //   `School fees: N${studentData.schoolFees.toLocaleString()}`,
+        //   `Graduation fees: ${
+        //     studentData.class === "JSS 3"
+        //       ? "N25,000"
+        //       : studentData.class === "SS 3"
+        //       ? "N30,000"
+        //       : "N15,000"
+        //   }`,
+        // ];
 
         generalNoteLines.forEach((line) => {
           doc.text(line, rightX, rightY);
           rightY += 6;
         });
 
+        // Split into two columns if space is limited
+        const leftColX = rightX;
+        const rightColX = rightX + 50;
+        // Check if we have enough vertical space for single column
+        if (rightY + generalNoteLines.length * 6 < pageHeight - 30) {
+          // Single column layout
+          generalNoteLines.forEach((line) => {
+            if (line === "") {
+              rightY += 3; // Add less space for empty lines
+            } else {
+              doc.text(line, leftColX, rightY);
+              rightY += 6;
+            }
+          });
+        } else {
+          // Two column layout
+          const half = Math.ceil(generalNoteLines.length / 2);
+
+          // Left column
+          generalNoteLines.slice(0, half).forEach((line) => {
+            if (line === "") {
+              rightY += 3;
+            } else {
+              doc.text(line, leftColX, rightY);
+              rightY += 6;
+            }
+          });
+
+          // Right column
+          let tempY = rightY - half * 6;
+          generalNoteLines.slice(half).forEach((line) => {
+            if (line === "") {
+              tempY += 3;
+            } else {
+              doc.text(line, rightColX, tempY);
+              tempY += 6;
+            }
+          });
+
+          rightY = tempY;
+        }
         // Move y down to whichever is lower (psychomotor or right content)
         y = Math.max(y, rightY);
       }
