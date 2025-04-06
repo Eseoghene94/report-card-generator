@@ -55,15 +55,6 @@ const nigerianSubjects = [
 
 // Class options from Creche to SS3 with school fees
 const classOptions = [
-  { name: "Creche", fees: 30000 },
-  { name: "Nursery 1", fees: 35000 },
-  { name: "Nursery 2", fees: 35000 },
-  { name: "Primary 1", fees: 40000 },
-  { name: "Primary 2", fees: 40000 },
-  { name: "Primary 3", fees: 40000 },
-  { name: "Primary 4", fees: 45000 },
-  { name: "Primary 5", fees: 45000 },
-  { name: "Primary 6", fees: 45000 },
   { name: "JSS 1", fees: 50000 },
   { name: "JSS 2", fees: 50000 },
   { name: "JSS 3", fees: 50000 },
@@ -523,16 +514,13 @@ const ReportCard = () => {
         rightY += 6;
 
         const generalNoteLines = [
-          `Next term begins: 28th April, 2025`,
-          `School fees: N${studentData.schoolFees.toLocaleString()}`,
-          `Graduation fees: ${
-            studentData.class === "JSS 3"
-              ? "N25,000"
-              : studentData.class === "SS 3"
-              ? "N30,000"
-              : "N15,000"
-          }`,
-        ];
+  `School fee`,
+  `SS3 Extension class till the end of WAEC; JAMB class/preparation; practical class: N30,000`,
+  `SS 1&2 Science student: N50,000 + Practicals N5000 Total N55,000`,
+  `SS 1 & 2 Art and commercial class: N50,000`,
+  `JSS 3: N50,000 + Junior waec extension classes N5000. Total N55,000`,
+  `JSS 1-2: N50,000`,
+];
 
         generalNoteLines.forEach((line) => {
           doc.text(line, rightX, rightY);
