@@ -554,9 +554,16 @@ const ReportCard = () => {
         const classFeeNote = currentClass ? currentClass.note : "N/A";
 
         // General fee information
+        // const generalNoteLines = [
+        //   `Next term begins: 28th April, 2025`,
+        //   `(${studentData.class || "N/A"}): ${classFeeNote}`,
+        //   "",
+        // ];
         const generalNoteLines = [
           `Next term begins: 28th April, 2025`,
-          `(${studentData.class || "N/A"}): ${classFeeNote}`,
+          "",
+          "SCHOOL FEES STRUCTURE:",
+          ...classOptions.map((cls) => `${cls.name}: ${cls.note}`),
           "",
         ];
         // const generalNoteLines = [
@@ -579,44 +586,44 @@ const ReportCard = () => {
         // Split into two columns if space is limited
         const leftColX = rightX;
         const rightColX = rightX + 50;
-        // Check if we have enough vertical space for single column
-        if (rightY + generalNoteLines.length * 6 < pageHeight - 30) {
-          // Single column layout
-          generalNoteLines.forEach((line) => {
-            if (line === "") {
-              rightY += 3; // Add less space for empty lines
-            } else {
-              doc.text(line, leftColX, rightY);
-              rightY += 6;
-            }
-          });
-        } else {
-          // Two column layout
-          const half = Math.ceil(generalNoteLines.length / 2);
+        // // Check if we have enough vertical space for single column
+        // if (rightY + generalNoteLines.length * 6 < pageHeight - 30) {
+        //   // Single column layout
+        //   // generalNoteLines.forEach((line) => {
+        //   //   if (line === "") {
+        //   //     rightY += 3; // Add less space for empty lines
+        //   //   } else {
+        //   //     doc.text(line, leftColX, rightY);
+        //   //     rightY += 6;
+        //   //   }
+        //   // });
+        // } else {
+        //   // Two column layout
+        //   const half = Math.ceil(generalNoteLines.length / 2);
 
-          // Left column
-          generalNoteLines.slice(0, half).forEach((line) => {
-            if (line === "") {
-              rightY += 3;
-            } else {
-              doc.text(line, leftColX, rightY);
-              rightY += 6;
-            }
-          });
+        //   // Left column
+        //   generalNoteLines.slice(0, half).forEach((line) => {
+        //     if (line === "") {
+        //       rightY += 3;
+        //     } else {
+        //       doc.text(line, leftColX, rightY);
+        //       rightY += 6;
+        //     }
+        //   });
 
-          // Right column
-          let tempY = rightY - half * 6;
-          generalNoteLines.slice(half).forEach((line) => {
-            if (line === "") {
-              tempY += 3;
-            } else {
-              doc.text(line, rightColX, tempY);
-              tempY += 6;
-            }
-          });
+        //   // Right column
+        //   let tempY = rightY - half * 6;
+        //   generalNoteLines.slice(half).forEach((line) => {
+        //     if (line === "") {
+        //       tempY += 3;
+        //     } else {
+        //       doc.text(line, rightColX, tempY);
+        //       tempY += 6;
+        //     }
+        //   });
 
-          rightY = tempY;
-        }
+        //   rightY = tempY;
+        // }
         // Move y down to whichever is lower (psychomotor or right content)
         y = Math.max(y, rightY);
       }
