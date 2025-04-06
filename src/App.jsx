@@ -514,12 +514,9 @@ const ReportCard = () => {
         rightY += 6;
 
         const generalNoteLines = [
-  `School fee`,
   `SS3 Extension class till the end of WAEC; JAMB class/preparation; practical class: N30,000`,
   `SS 1&2 Science student: N50,000 + Practicals N5000 Total N55,000`,
   `SS 1 & 2 Art and commercial class: N50,000`,
-  `JSS 3: N50,000 + Junior waec extension classes N5000. Total N55,000`,
-  `JSS 1-2: N50,000`,
 ];
 
         generalNoteLines.forEach((line) => {
