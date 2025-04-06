@@ -561,7 +561,6 @@ const ReportCard = () => {
         // ];
         const generalNoteLines = [
           `Next term begins: 28th April, 2025`,
-          "",
           "SCHOOL FEES STRUCTURE:",
           ...classOptions.map((cls) => `${cls.name}: ${cls.note}`),
           "",
