@@ -178,51 +178,50 @@ const ReportCard = () => {
   // ... [keep all your existing functions like validateInput, handleInputChange, etc.] ...
 
   const generatePDF = () => {
-    try {
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-      const pageWidth = 210;
-      const pageHeight = 297;
-      let y = 10;
-      let isFirstPage = true;
+  try {
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+    const pageWidth = 210;
+    const pageHeight = 297;
+    let y = 10;
+    let isFirstPage = true;
 
-      const addNewPageIfNeeded = (requiredHeight) => {
-        if (y + requiredHeight > pageHeight - 20) {
-          doc.addPage();
-          y = 10;
-          isFirstPage = false;
-        }
-      };
-
-      // Logo (only on first page)
-      if (isFirstPage) {
-        doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
+    const addNewPageIfNeeded = (requiredHeight) => {
+      if (y + requiredHeight > pageHeight - 20) {
+        doc.addPage();
+        y = 10;
+        isFirstPage = false;
       }
+    };
 
-      // Header
-      doc.setFontSize(16);
-      doc.setTextColor(255, 0, 0);
-      doc.text("PROTEGE SCHOOLS", pageWidth / 2, y + 10, { align: "center" });
-      doc.setFontSize(12);
-      doc.setTextColor(0, 51, 102);
-      doc.text("2, Kola Rewire Street, Ejigbo, Lagos", pageWidth / 2, y + 18, {
-        align: "center",
-      });
-      doc.text("protegeacademyconsult@gmail.com", pageWidth / 2, y + 24, {
-        align: "center",
-      });
-      doc.setFontSize(14);
-      doc.text(
-        "SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
-        pageWidth / 2,
-        y + 32,
-        { align: "center" }
-      );
-      y += 40;
+    // Logo (only on first page)
+    if (isFirstPage) {
+      doc.addImage("/logo2.png", "PNG", 10, 10, 30, 30);
+    }
 
+    // Header
+    doc.setFontSize(16);
+    doc.setTextColor(255, 0, 0);
+    doc.text("PROTEGE SCHOOLS", pageWidth / 2, y + 10, { align: "center" });
+    doc.setFontSize(12);
+    doc.setTextColor(0, 51, 102);
+    doc.text("2, Kola Rewire Street, Ejigbo, Lagos", pageWidth / 2, y + 18, {
+      align: "center",
+    });
+    doc.text("protegeacademyconsult@gmail.com", pageWidth / 2, y + 24, {
+      align: "center",
+    });
+    doc.setFontSize(14);
+    doc.text(
+      "SECOND TERM PROGRESS REPORT (2024/2025 ACADEMIC SESSION)",
+      pageWidth / 2,
+      y + 32,
+      { align: "center" }
+    );
+    y += 40;
 
       // Student Info
       doc.setFontSize(10);
@@ -503,14 +502,14 @@ const ReportCard = () => {
         );
       }
 
-      doc.save(`${studentData.name}_report_card.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert(
-        "An error occurred while generating the PDF. Check the console for details."
-      );
-    }
-  };
+       doc.save(`${studentData.name}_report_card.pdf`);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    alert(
+      "An error occurred while generating the PDF. Check the console for details."
+    );
+  }
+};
 
   const validateForm = () => {
     const requiredFields = ["name", "admissionNo", "class", "examName"];
