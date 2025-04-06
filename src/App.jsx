@@ -177,7 +177,7 @@ const ReportCard = () => {
 
   // ... [keep all your existing functions like validateInput, handleInputChange, etc.] ...
 
-  const generatePDF = () => {
+ const generatePDF = () => {
   try {
     const doc = new jsPDF({
       orientation: "portrait",
@@ -223,191 +223,191 @@ const ReportCard = () => {
     );
     y += 40;
 
-      // Student Info
-      doc.setFontSize(10);
-      doc.setTextColor(0);
-      doc.text(`Student Name: ${studentData.name}`, 15, y);
-      doc.text(`Class: ${studentData.class}`, 15, y + 6);
-      doc.text(`Admission No: ${studentData.admissionNo}`, 15, y + 12);
-      doc.text(`Exam Name: ${studentData.examName}`, 110, y);
-      doc.text(`Section: ${studentData.section}`, 110, y + 6);
-      doc.text(`Gender: ${studentData.gender}`, 110, y + 12);
-      doc.text(
-        `Attendance: ${studentData.attendance.present}/${studentData.attendance.total}`,
-        15,
-        y + 18
-      );
-      y += 24;
+    // Student Info
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    doc.text(`Student Name: ${studentData.name}`, 15, y);
+    doc.text(`Class: ${studentData.class}`, 15, y + 6);
+    doc.text(`Admission No: ${studentData.admissionNo}`, 15, y + 12);
+    doc.text(`Exam Name: ${studentData.examName}`, 110, y);
+    doc.text(`Section: ${studentData.section}`, 110, y + 6);
+    doc.text(`Gender: ${studentData.gender}`, 110, y + 12);
+    doc.text(
+      `Attendance: ${studentData.attendance.present}/${studentData.attendance.total}`,
+      15,
+      y + 18
+    );
+    y += 24;
 
-      // Academic Performance Table
-      const headers = [
-        "Subject",
-        "Exam",
-        "1st CA",
-        "2nd CA",
-        "Total",
-        "Grade",
-        "Remark",
-      ];
-      const columnWidths = [65, 20, 20, 20, 20, 15, 25];
-      const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
-      addNewPageIfNeeded(10 + studentData.subjects.length * 8);
+    // Academic Performance Table
+    const headers = [
+      "Subject",
+      "Exam",
+      "1st CA",
+      "2nd CA",
+      "Total",
+      "Grade",
+      "Remark",
+    ];
+    const columnWidths = [65, 20, 20, 20, 20, 15, 25];
+    const tableWidth = columnWidths.reduce((a, b) => a + b, 0);
+    addNewPageIfNeeded(10 + studentData.subjects.length * 8);
 
-      // Draw table header
+    // Draw table header
+    doc.setFontSize(10);
+    doc.setFillColor(200, 220, 255);
+    doc.rect(15, y, tableWidth, 8, "F");
+    doc.setDrawColor(0);
+    let x = 15;
+    headers.forEach((header, i) => {
+      doc.rect(x, y, columnWidths[i], 8);
+      doc.text(header, x + 2, y + 6);
+      x += columnWidths[i];
+    });
+    y += 8;
+
+    // Table rows
+    studentData.subjects.forEach((subject) => {
+      addNewPageIfNeeded(8);
+      const total = calculateTotal(subject);
+      const grade = calculateGrade(total);
+      const remark =
+        total >= 75
+          ? "Excellent"
+          : total >= 60
+          ? "Very Good"
+          : total >= 50
+          ? "Good"
+          : "Poor";
+
+      x = 15;
+      doc.rect(x, y, columnWidths[0], 8);
+      doc.text(subject.subject || "N/A", x + 2, y + 6, {
+        maxWidth: columnWidths[0] - 4,
+      });
+      x += columnWidths[0];
+      doc.rect(x, y, columnWidths[1], 8);
+      doc.text(`${subject.exam || 0}`, x + 2, y + 6);
+      x += columnWidths[1];
+      doc.rect(x, y, columnWidths[2], 8);
+      doc.text(`${subject.ca1 || 0}`, x + 2, y + 6);
+      x += columnWidths[2];
+      doc.rect(x, y, columnWidths[3], 8);
+      doc.text(`${subject.ca2 || 0}`, x + 2, y + 6);
+      x += columnWidths[3];
+      doc.rect(x, y, columnWidths[4], 8);
+      doc.text(`${total}`, x + 2, y + 6);
+      x += columnWidths[4];
+      doc.rect(x, y, columnWidths[5], 8);
+      doc.text(grade, x + 2, y + 6);
+      x += columnWidths[5];
+      doc.rect(x, y, columnWidths[6], 8);
+      doc.text(remark, x + 2, y + 6);
+      y += 8;
+    });
+
+    // Summary
+    const maxScore = studentData.subjects.length * 100;
+    const grandTotal = studentData.subjects.reduce(
+      (sum, subject) => sum + calculateTotal(subject),
+      0
+    );
+    const average = ((grandTotal / maxScore) * 100).toFixed(2);
+
+    addNewPageIfNeeded(20);
+    y += 10;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 51, 102);
+    doc.text("SUMMARY", 15, y);
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    y += 6;
+    doc.text(
+      `Total Score: ${grandTotal}/${maxScore} (Average: ${average}%)`,
+      15,
+      y
+    );
+    y += 12;
+
+    // Ability/Activities Table (left side)
+    const selectedPsychomotor = studentData.psychomotor.filter(
+      (item) => item.rating > 0
+    );
+    if (selectedPsychomotor.length > 0) {
+      const psychoStartY = y;
+
+      doc.setFontSize(12);
+      doc.setTextColor(0, 51, 102);
+      doc.text("Ability/Activities", 15, y);
+      y += 6;
+
+      const psychoHeaders = ["Skill", "Rating"];
+      const psychoWidths = [50, 20];
+      const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
+
       doc.setFontSize(10);
       doc.setFillColor(200, 220, 255);
-      doc.rect(15, y, tableWidth, 8, "F");
-      doc.setDrawColor(0);
-      let x = 15;
-      headers.forEach((header, i) => {
-        doc.rect(x, y, columnWidths[i], 8);
+      doc.rect(15, y, psychoTableWidth, 8, "F");
+      x = 15;
+      psychoHeaders.forEach((header, i) => {
+        doc.rect(x, y, psychoWidths[i], 8);
         doc.text(header, x + 2, y + 6);
-        x += columnWidths[i];
+        x += psychoWidths[i];
       });
       y += 8;
 
-      // Table rows
-      studentData.subjects.forEach((subject) => {
-        addNewPageIfNeeded(8);
-        const total = calculateTotal(subject);
-        const grade = calculateGrade(total);
-        const remark =
-          total >= 75
-            ? "Excellent"
-            : total >= 60
-            ? "Very Good"
-            : total >= 50
-            ? "Good"
-            : "Poor";
-
+      selectedPsychomotor.slice(0, 8).forEach((item) => {
         x = 15;
-        doc.rect(x, y, columnWidths[0], 8);
-        doc.text(subject.subject || "N/A", x + 2, y + 6, {
-          maxWidth: columnWidths[0] - 4,
+        doc.rect(x, y, psychoWidths[0], 8);
+        doc.text(item.domain, x + 2, y + 6, {
+          maxWidth: psychoWidths[0] - 4,
         });
-        x += columnWidths[0];
-        doc.rect(x, y, columnWidths[1], 8);
-        doc.text(`${subject.exam || 0}`, x + 2, y + 6);
-        x += columnWidths[1];
-        doc.rect(x, y, columnWidths[2], 8);
-        doc.text(`${subject.ca1 || 0}`, x + 2, y + 6);
-        x += columnWidths[2];
-        doc.rect(x, y, columnWidths[3], 8);
-        doc.text(`${subject.ca2 || 0}`, x + 2, y + 6);
-        x += columnWidths[3];
-        doc.rect(x, y, columnWidths[4], 8);
-        doc.text(`${total}`, x + 2, y + 6);
-        x += columnWidths[4];
-        doc.rect(x, y, columnWidths[5], 8);
-        doc.text(grade, x + 2, y + 6);
-        x += columnWidths[5];
-        doc.rect(x, y, columnWidths[6], 8);
-        doc.text(remark, x + 2, y + 6);
+        x += psychoWidths[0];
+        doc.rect(x, y, psychoWidths[1], 8);
+        doc.text(`${item.rating}`, x + 2, y + 6);
         y += 8;
       });
 
-      // Summary
-      const maxScore = studentData.subjects.length * 100;
-      const grandTotal = studentData.subjects.reduce(
-        (sum, subject) => sum + calculateTotal(subject),
-        0
-      );
-      const average = ((grandTotal / maxScore) * 100).toFixed(2);
+      // Right side content (Remarks and General Note)
+      const rightX = 100;
+      let rightY = psychoStartY;
 
-      addNewPageIfNeeded(20);
-      y += 10;
+      // Teacher's Remark
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
-      doc.text("SUMMARY", 15, y);
+      doc.text("Teacher's Remark:", rightX, rightY);
       doc.setFontSize(10);
       doc.setTextColor(0);
-      y += 6;
-      doc.text(
-        `Total Score: ${grandTotal}/${maxScore} (Average: ${average}%)`,
-        15,
-        y
+      rightY += 6;
+
+      const teacherRemarkLines = doc.splitTextToSize(
+        studentData.teacherRemark || "N/A",
+        90
       );
-      y += 12;
+      teacherRemarkLines.slice(0, 4).forEach((line) => {
+        doc.text(line, rightX, rightY);
+        rightY += 6;
+      });
 
-      // Ability/Activities Table (left side)
-      const selectedPsychomotor = studentData.psychomotor.filter(
-        (item) => item.rating > 0
+      // Principal's Remark
+      rightY += 6;
+      doc.setFontSize(12);
+      doc.setTextColor(0, 51, 102);
+      doc.text("Principal's Remark:", rightX, rightY);
+      doc.setFontSize(10);
+      doc.setTextColor(0);
+      rightY += 6;
+
+      const principalRemarkLines = doc.splitTextToSize(
+        studentData.principalRemark || "N/A",
+        90
       );
-      if (selectedPsychomotor.length > 0) {
-        const psychoStartY = y;
-
-        doc.setFontSize(12);
-        doc.setTextColor(0, 51, 102);
-        doc.text("Ability/Activities", 15, y);
-        y += 6;
-
-        const psychoHeaders = ["Skill", "Rating"];
-        const psychoWidths = [50, 20];
-        const psychoTableWidth = psychoWidths.reduce((a, b) => a + b, 0);
-
-        doc.setFontSize(10);
-        doc.setFillColor(200, 220, 255);
-        doc.rect(15, y, psychoTableWidth, 8, "F");
-        x = 15;
-        psychoHeaders.forEach((header, i) => {
-          doc.rect(x, y, psychoWidths[i], 8);
-          doc.text(header, x + 2, y + 6);
-          x += psychoWidths[i];
-        });
-        y += 8;
-
-        selectedPsychomotor.slice(0, 8).forEach((item) => {
-          x = 15;
-          doc.rect(x, y, psychoWidths[0], 8);
-          doc.text(item.domain, x + 2, y + 6, {
-            maxWidth: psychoWidths[0] - 4,
-          });
-          x += psychoWidths[0];
-          doc.rect(x, y, psychoWidths[1], 8);
-          doc.text(`${item.rating}`, x + 2, y + 6);
-          y += 8;
-        });
-
-        // Right side content (Remarks and General Note)
-        const rightX = 100;
-        let rightY = psychoStartY;
-
-        // Teacher's Remark
-        doc.setFontSize(12);
-        doc.setTextColor(0, 51, 102);
-        doc.text("Teacher's Remark:", rightX, rightY);
-        doc.setFontSize(10);
-        doc.setTextColor(0);
+      principalRemarkLines.slice(0, 4).forEach((line) => {
+        doc.text(line, rightX, rightY);
         rightY += 6;
+      });
 
-        const teacherRemarkLines = doc.splitTextToSize(
-          studentData.teacherRemark || "N/A",
-          90
-        );
-        teacherRemarkLines.slice(0, 4).forEach((line) => {
-          doc.text(line, rightX, rightY);
-          rightY += 6;
-        });
-
-        // Principal's Remark
-        rightY += 6;
-        doc.setFontSize(12);
-        doc.setTextColor(0, 51, 102);
-        doc.text("Principal's Remark:", rightX, rightY);
-        doc.setFontSize(10);
-        doc.setTextColor(0);
-        rightY += 6;
-
-        const principalRemarkLines = doc.splitTextToSize(
-          studentData.principalRemark || "N/A",
-          90
-        );
-        principalRemarkLines.slice(0, 4).forEach((line) => {
-          doc.text(line, rightX, rightY);
-          rightY += 6;
-        });
-
-         // General Note (right below Remarks)
+      // School Fees Information
       rightY += 6;
       doc.setFontSize(12);
       doc.setTextColor(0, 51, 102);
@@ -446,7 +446,7 @@ const ReportCard = () => {
         // Single column layout
         generalNoteLines.forEach((line) => {
           if (line === "") {
-            rightY += 3; // Add less space for empty lines
+            rightY += 3;
           } else {
             doc.text(line, leftColX, rightY);
             rightY += 6;
@@ -481,28 +481,27 @@ const ReportCard = () => {
         rightY = tempY;
       }
 
+      // Move y down to whichever is lower (psychomotor or right content)
+      y = Math.max(y, rightY);
+    }
 
-      //   // Move y down to whichever is lower (psychomotor or right content)
-      //   y = Math.max(y, rightY);
-      // }
+    // Add stamp at bottom-right if space allows
+    if (stampImage && y < pageHeight - 50) {
+      const stampWidth = 30;
+      const stampHeight = 30;
+      const stampX = pageWidth - stampWidth - 15;
+      const stampY = pageHeight - stampHeight - 15;
+      doc.addImage(
+        stampImage,
+        "PNG",
+        stampX,
+        stampY,
+        stampWidth,
+        stampHeight
+      );
+    }
 
-      // Add stamp at bottom-right if space allows
-      if (stampImage && y < pageHeight - 50) {
-        const stampWidth = 30;
-        const stampHeight = 30;
-        const stampX = pageWidth - stampWidth - 15;
-        const stampY = pageHeight - stampHeight - 15;
-        doc.addImage(
-          stampImage,
-          "PNG",
-          stampX,
-          stampY,
-          stampWidth,
-          stampHeight
-        );
-      }
-
-       doc.save(`${studentData.name}_report_card.pdf`);
+    doc.save(`${studentData.name}_report_card.pdf`);
   } catch (error) {
     console.error("Error generating PDF:", error);
     alert(
@@ -510,7 +509,6 @@ const ReportCard = () => {
     );
   }
 };
-
   const validateForm = () => {
     const requiredFields = ["name", "admissionNo", "class", "examName"];
     let isValid = true;
