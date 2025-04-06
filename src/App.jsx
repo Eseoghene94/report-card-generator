@@ -55,13 +55,13 @@ const nigerianSubjects = [
 
 // Class options from Creche to SS3 with school fees
 const classOptions = [
-  { name: "JSS 1", fees: 50000, note: "N50,000" },
-  { name: "JSS 2", fees: 50000, note: "N50,000" },
-  {
-    name: "JSS 3",
-    fees: 55000,
-    note: "N50,000 + Junior WAEC extension N5,000 (Total: N55,000)",
-  },
+  // { name: "JSS 1", fees: 50000, note: "N50,000" },
+  // { name: "JSS 2", fees: 50000, note: "N50,000" },
+  // {
+  //   name: "JSS 3",
+  //   fees: 55000,
+  //   note: "N50,000 + Junior WAEC extension N5,000 (Total: N55,000)",
+  // },
   {
     name: "SS 1 Science",
     fees: 55000,
