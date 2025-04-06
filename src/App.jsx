@@ -561,6 +561,7 @@ const ReportCard = () => {
         // ];
         const generalNoteLines = [
           `Next term begins: 28th April, 2025`,
+
           "SCHOOL FEES STRUCTURE:",
           ...classOptions.map((cls) => `${cls.name}: ${cls.note}`),
           "",
@@ -583,8 +584,8 @@ const ReportCard = () => {
         });
 
         // Split into two columns if space is limited
-        const leftColX = rightX;
-        const rightColX = rightX + 50;
+        // const leftColX = rightX;
+        // const rightColX = rightX + 50;
         // // Check if we have enough vertical space for single column
         // if (rightY + generalNoteLines.length * 6 < pageHeight - 30) {
         //   // Single column layout
