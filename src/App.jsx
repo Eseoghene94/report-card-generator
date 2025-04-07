@@ -76,8 +76,8 @@ const classOptions = [
   { name: "SS 2 Art/Commercial", fees: 50000, note: "N50,000" },
   {
     name: "SS 3",
-    fees: 30000,
-    note: "Extension class (WAEC/JAMB prep + practicals) - N30,000",
+    fees: 40000,
+    note: "Extension class (WAEC/JAMB prep + practicals) - N40,000",
   },
 ];
 //   { name: "Creche", fees: 30000 },
@@ -560,7 +560,7 @@ const ReportCard = () => {
         //   "",
         // ];
         const generalNoteLines = [
-          `Next term begins: 28th April, 2025`,
+          `Next term begins: 7th April, 2025`,
 
           "SCHOOL FEES STRUCTURE:",
           ...classOptions.map((cls) => `${cls.name}: ${cls.note}`),
