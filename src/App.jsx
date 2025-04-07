@@ -560,7 +560,7 @@ const ReportCard = () => {
         //   "",
         // ];
         const generalNoteLines = [
-          `Next term begins: 7th April, 2025`,
+          `Waec/Jamb classes begins: 7th April, 2025`,
 
           "SCHOOL FEES STRUCTURE:",
           ...classOptions.map((cls) => `${cls.name}: ${cls.note}`),
